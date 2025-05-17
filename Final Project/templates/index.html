@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centralized Health Administration and Monitoring Platform
+
+    </title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        header p {
+            margin: 5px 0 0;
+            font-size: 16px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 boxes in first row */
+            grid-gap: 20px;
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+        }
+
+        .container > div:nth-child(4),
+        .container > div:nth-child(5) {
+            grid-column: span 3; /* Center 2 boxes in second row */
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            flex: 0 0 45%;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #666;
+            margin: 10px 0 20px;
+        }
+
+        .card button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .card button:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+            width: 100%;
+            position: relative;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Centralized Health Administration and Monitoring Platform
+
+    </h1>
+    <p>Streamline healthcare management for PHCs, Sub-Centers, Doctors, and Patients.</p>
+</header>
+
+<div class="container">
+    <!-- PHC Section -->
+    <div class="card">
+        <h3>Primary Health Centers (PHCs)</h3>
+        <p>Manage doctor attendance, equipment inventory, and real-time patient analysis.</p>
+        <button onclick="window.location.href='/phc_login'">PHC Login</button>
+    </div>
+
+    <!-- Sub-Center Section -->
+    <div class="card">
+        <h3>Sub-Centers</h3>
+        <p>Track and update doctor attendance, equipment, and patient data for your sub-center.</p>
+        <button onclick="window.location.href='/sub_center_login'">Sub-Center Login</button>
+    </div>
+
+    <!-- DDHS Section -->
+    <div class="card">
+        <h3>DDHS (District Health Office)</h3>
+        <p>Analyze PHC and Sub-Center data, track doctor availability, and monitor resources.</p>
+        <button onclick="window.location.href='/ddhs_login'">DDHS Login</button>
+    </div>
+
+    <!-- Second Row Start -->
+    <div class="card">
+        <h3>Doctors</h3>
+        <p>View schedules, patient lists, and access performance data for your assigned centers.</p>
+        <button onclick="window.location.href='/doctor_login'">Doctor Login</button>
+    </div>
+
+    <div class="card">
+        <h3>Patients</h3>
+        <p>Access medical history, book appointments, and stay connected with healthcare providers.</p>
+        <button onclick="window.location.href='/patient_login'">Patient Login</button>
+    </div>
+</div>
+
+<footer>
+    <p>Digital Healthcare Monitoring System &copy; 2025 | All Rights Reserved</p>
+</footer>
+
+</body>
+</html>

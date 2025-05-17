@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHC Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        h1, h2, h3 {
+            margin: 20px 0;
+            color: #333;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+        }
+        .tabs button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: #f9f9f9;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tabs button.active {
+            border-bottom: 3px solid #4CAF50;
+            background: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .form-section {
+            margin: 20px 0;
+        }
+        .form-section form {
+            margin-bottom: 20px;
+        }
+        .form-section input, .form-section select, .form-section button {
+            margin: 5px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+        .form-section button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form-section button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ phc['name'] }} - Primary Health Center Dashboard</h1>
+        <p>Location: {{ phc['location'] }}</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="operations">Operations</button>
+            <button class="tab-btn" data-tab="reports">Reports</button>
+            <button class="tab-btn" data-tab="appointments">Upcoming Appointments</button>
+
+        </div>
+
+        <!-- Operations Tab -->
+        <div id="operations" class="tab-content active">
+            <h2>Operations</h2>
+
+            <!-- Low Stock Notifications -->
+            <div class="form-section">
+                <h3>Low Stock Notifications</h3>
+                <ul>
+                    {% if low_stock_medicines %}
+                    <li><strong>Medicines:</strong></li>
+                    <ul>
+                        {% for medicine in low_stock_medicines %}
+                        <li>{{ medicine['name'] }} - {{ medicine['quantity'] }} left</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if low_stock_vaccines %}
+                    <li><strong>Vaccines:</strong></li>
+                    <ul>
+                        {% for vaccine in low_stock_vaccines %}
+                        <li>{{ vaccine['name'] }} - {{ vaccine['quantity'] }} left</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Place Order -->
+            <div class="form-section">
+                <h3>Place Order</h3>
+                <form method="POST" action="/place_order">
+                    <input type="text" name="item_name" placeholder="Item Name" required>
+                    <input type="number" name="quantity" placeholder="Quantity" required>
+                    <button type="submit">Place Order</button>
+                </form>
+            </div>
+
+            <!-- Mark Attendance -->
+            <div class="form-section">
+                <h3>Mark Attendance</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Doctor Name</th>
+                            <th>Specialization</th>
+                            <th>Mark Attendance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for doctor in doctors %}
+                        <tr>
+                            <td>{{ doctor['name'] }}</td>
+                            <td>{{ doctor['specialization'] }}</td>
+                            <td>
+                                <form method="POST" action="/mark_attendance">
+                                    <input type="hidden" name="doctor_id" value="{{ doctor['id'] }}">
+                                    <input type="date" name="date" required>
+                                    <select name="status" required>
+                                        <option value="Present">Present</option>
+                                        <option value="Absent">Absent</option>
+                                    </select>
+                                    <button type="submit">Mark</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Patient -->
+            <div class="form-section">
+                <h3>Add New Patient</h3>
+                <form method="POST" action="/add_patient">
+                    <input type="text" name="name" placeholder="Patient Name" required>
+                    <input type="number" name="age" placeholder="Age" required>
+                    <select name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                    <button type="submit">Add Patient</button>
+                </form>
+            </div>
+
+            <!-- Log Treatment -->
+            <div class="form-section">
+                <h3>Log Treatment</h3>
+                <form method="POST" action="/log_treatment">
+                    <!-- Patient Dropdown -->
+                    <select name="patient_id" required>
+                        <option value="">Select Patient</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient['id'] }}">{{ patient['name'] }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Doctor Dropdown -->
+                    <select name="doctor_id" required>
+                        <option value="">Select Doctor</option>
+                        {% for doctor in doctors %}
+                        <option value="{{ doctor['id'] }}">{{ doctor['name'] }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Date -->
+                    <input type="date" name="date" required>
+
+                    <!-- Medicine Dropdown -->
+                    <select name="medicine_name">
+                        <option value="">Select Medicine (Optional)</option>
+                        {% for medicine in medicines %}
+                        <option value="{{ medicine['name'] }}">{{ medicine['name'] }} ({{ medicine['quantity'] }} in stock)</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Vaccine Dropdown -->
+                    <select name="vaccine_name">
+                        <option value="">Select Vaccine (Optional)</option>
+                        {% for vaccine in vaccines %}
+                        <option value="{{ vaccine['name'] }}">{{ vaccine['name'] }} ({{ vaccine['quantity'] }} in stock)</option>
+                        {% endfor %}
+                    </select>
+
+                    <!-- Quantity -->
+                    <input type="number" name="quantity" placeholder="Quantity" min="1">
+
+                    <button type="submit">Log Treatment</button>
+                </form>
+            </div>
+        </div>
+        <!-- Upcoming Appointments Tab -->
+        <div id="appointments" class="tab-content">
+            <h2>📅 Upcoming Appointments</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Doctor Name</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment['patient_name'] }}</td>
+                        <td>{{ appointment['doctor_name'] }}</td>
+                        <td>{{ appointment['date'] }}</td>
+                        <td>{{ appointment['time'] }}</td>
+                        <td>{{ appointment['status'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        
+        <!-- Reports Tab -->
+        <div id="reports" class="tab-content">
+            <h2>Reports</h2>
+
+            <!-- Attendance Summary -->
+            <h3>Doctor Attendance Summary</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Doctor Name</th>
+                        <th>Present Days</th>
+                        <th>Total Days</th>
+                        <th>Attendance (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_summary %}
+                    <tr>
+                        <td>{{ record['doctor_name'] }}</td>
+                        <td>{{ record['present_days'] }}</td>
+                        <td>{{ record['total_days'] }}</td>
+                        <td>{{ (record['present_days'] / record['total_days']) * 100 if record['total_days'] > 0 else 0 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Available Medicines -->
+            <h3>Available Medicines</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Medicine Name</th>
+                        <th>Stock Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for medicine in medicines %}
+                    <tr>
+                        <td>{{ medicine['name'] }}</td>
+                        <td>{{ medicine['quantity'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Patients -->
+            <h3>Registered Patients</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td>{{ patient['name'] }}</td>
+                        <td>{{ patient['age'] }}</td>
+                        <td>{{ patient['gender'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Treatment History -->
+            <h3>Treatment History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient Name</th>
+                        <th>Doctor Name</th>
+                        <th>Medicine Given</th>
+                        <th>Vaccine Given</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for treatment in treatments %}
+                    <tr>
+                        <td>{{ treatment['date'] }}</td>
+                        <td>{{ treatment['patient_name'] }}</td>
+                        <td>{{ treatment['doctor_name'] }}</td>
+                        <td>{{ treatment['medicine_name'] or 'N/A' }}</td>
+                        <td>{{ treatment['vaccine_name'] or 'N/A' }}</td>
+                        <td>{{ treatment['quantity'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching logic
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding content
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

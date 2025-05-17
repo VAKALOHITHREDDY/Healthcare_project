@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        form label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        form input, form select, form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        form button {
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+        }
+        table thead {
+            background-color: #4CAF50;
+            color: white;
+        }
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .logout {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .logout a {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .logout a:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🩺 Patient Dashboard</h1>
+</header>
+
+<div class="container">
+    <h2>Welcome, {{ patient['name'] }}</h2>
+
+    {% if phc %}
+        <p><strong>Primary Health Center (PHC):</strong> {{ phc['name'] }} - {{ phc['location'] }}</p>
+    {% elif sub_center %}
+        <p><strong>Sub-Center:</strong> {{ sub_center['name'] }} - {{ sub_center['location'] }}</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>📅 Book an Appointment</h2>
+    <form method="POST" action="/schedule_appointment">
+        <label for="doctor_id">Select Doctor:</label>
+        <select name="doctor_id" required>
+            <option value="">-- Select Doctor --</option>
+            {% for doctor in doctors %}
+                <option value="{{ doctor['id'] }}">{{ doctor['name'] }} - {{ doctor['specialization'] }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="date">Date:</label>
+        <input type="date" name="date" required>
+
+        <label for="time">Time:</label>
+        <input type="time" name="time" required>
+
+        <label for="reason">Reason for Visit:</label>
+        <textarea name="reason" placeholder="Enter reason for visit..." required></textarea>
+
+        <button type="submit">Book Appointment</button>
+    </form>
+
+    <hr>
+
+    <h2>📋 My Appointments</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment['doctor_name'] }}</td>
+                <td>{{ appointment['date'] }}</td>
+                <td>{{ appointment['time'] }}</td>
+                <td>{{ appointment['status'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="logout">
+        <a href="/logout">🚪 Logout</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDHS Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #ddd;
+        }
+        .tabs button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: #f9f9f9;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tabs button.active {
+            border-bottom: 3px solid #4CAF50;
+            background: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DDHS - District Health Dashboard</h1>
+        <p>Monitor all PHCs, SubCenters, Doctors, and Patients</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="attendance">Doctor Attendance</button>
+            <button class="tab-btn" data-tab="appointments">Appointments</button>
+            <button class="tab-btn" data-tab="treatments">Treatments</button>
+            <button class="tab-btn" data-tab="stock">Stock Availability</button>
+            <button class="tab-btn" data-tab="orders">Stock Orders</button>
+            
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overview" class="tab-content active">
+            <h2>📊 Dashboard Overview</h2>
+            <ul>
+                <li><strong>Total PHCs:</strong> {{ total_phcs }}</li>
+                <li><strong>Total SubCenters:</strong> {{ total_sub_centers }}</li>
+                <li><strong>Total Doctors:</strong> {{ total_doctors }}</li>
+                <li><strong>Total Patients:</strong> {{ total_patients }}</li>
+                <li><strong>Today's Appointments:</strong> {{ todays_appointments }}</li>
+                <li><strong>Pending Stock Orders:</strong> {{ pending_orders }}</li>
+            </ul>
+        </div>
+
+        <!-- Doctor Attendance -->
+        <div id="attendance" class="tab-content">
+            <h2>📅 Doctor Attendance Logs</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Doctor Name</th>
+                        <th>PHC</th>
+                        <th>SubCenter</th>
+                        <th>Present Days</th>
+                        <th>Total Days</th>
+                        <th>Attendance (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_logs %}
+                    <tr>
+                        <td>{{ record['doctor_name'] }}</td>
+                        <td>{{ record['phc_name'] or 'N/A' }}</td>
+                        <td>{{ record['sub_center_name'] or 'N/A' }}</td>
+                        <td>{{ record['present_days'] }}</td>
+                        <td>{{ record['total_days'] }}</td>
+                        <td>{{ (record['present_days'] / record['total_days']) * 100 if record['total_days'] > 0 else 0 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Treatments -->
+        <div id="treatments" class="tab-content">
+            <h2>💊 Treatment History</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Patient Name</th>
+                        <th>Doctor Name</th>
+                        <th>Medicine Given</th>
+                        <th>Vaccine Given</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for treatment in treatments %}
+                    <tr>
+                        <td>{{ treatment['date'] }}</td>
+                        <td>{{ treatment['patient_name'] }}</td>
+                        <td>{{ treatment['doctor_name'] }}</td>
+                        <td>{{ treatment['medicine_name'] or 'N/A' }}</td>
+                        <td>{{ treatment['vaccine_name'] or 'N/A' }}</td>
+                        <td>{{ treatment['quantity'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        
+        
+         <!-- Appointments -->
+         <div id="appointments" class="tab-content">
+            <h2>📅 Upcoming & Completed Appointments</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient Name</th>
+                        <th>Doctor Name</th>
+                        <th>PHC</th>
+                        <th>SubCenter</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment['patient_name'] }}</td>
+                        <td>{{ appointment['doctor_name'] }}</td>
+                        <td>{{ appointment['phc_name'] or 'N/A' }}</td>
+                        <td>{{ appointment['sub_center_name'] or 'N/A' }}</td>
+                        <td>{{ appointment['date'] }}</td>
+                        <td>{{ appointment['time'] }}</td>
+                        <td>{{ appointment['status'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+
+
+        <!-- Stock Availability -->
+        <div id="stock" class="tab-content">
+            <h2>📦 Stock Availability</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Quantity</th>
+                        <th>PHC</th>
+                        <th>SubCenter</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in medicines %}
+                    <tr>
+                        <td>{{ stock['name'] }}</td>
+                        <td>{{ stock['quantity'] }}</td>
+                        <td>{{ stock['phc_name'] or 'N/A' }}</td>
+                        <td>{{ stock['sub_center_name'] or 'N/A' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Stock Orders -->
+        <div id="orders" class="tab-content">
+            <h2>📢 Stock Orders & Notifications</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>PHC</th>
+                        <th>Item Name</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in stock_orders %}
+                    <tr>
+                        <td>{{ order['id'] }}</td>
+                        <td>{{ order['phc_name'] or 'N/A' }}</td>
+                        <td>{{ order['item_name'] }}</td>
+                        <td>{{ order['quantity'] }}</td>
+                        <td>{{ order['status'] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                button.classList.add('active');
+                document.getElementById(button.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+
+</body>
+</html>
